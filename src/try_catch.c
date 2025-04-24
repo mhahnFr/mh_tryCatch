@@ -1,12 +1,16 @@
 /*
  * mh_tryCatch - Try Catch for C
  *
- * Copyright (C) 2025  mhahnFr
+ * Written in 2025 by mhahnFr
  *
  * This file is part of mh_tryCatch.
  *
- * mh_tryCatch is marked with CC0 1.0 Universal. To view a copy of this license,
- * see the file LICENSE or visit <https://creativecommons.org/publicdomain/zero/1.0/>.
+ * To the extent possible under law, the author(s) have dedicated all copyright
+ * and related and neighboring rights to this software to the public domain
+ * worldwide. This software is distributed without any warranty.
+ *
+ * You should have received a copy of the CC0 Public Domain Dedication along with mh_tryCatch,
+ * see the file LICENSE. If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
  */
 
 #include <stdio.h>
