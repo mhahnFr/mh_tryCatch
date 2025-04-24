@@ -1,3 +1,15 @@
+# mh_tryCatch - Try Catch for C
+#
+# Copyright (C) 2025  mhahnFr
+#
+# This file is part of mh_tryCatch.
+#
+# mh_tryCatch is marked with CC0 1.0 Universal. To view a copy of this license,
+# see the file LICENSE or visit <https://creativecommons.org/publicdomain/zero/1.0/>.
+
+.*
+*~
+
 # Prerequisites
 *.d
 
