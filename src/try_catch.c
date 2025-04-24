@@ -17,9 +17,9 @@
 
 #include "try_catch.h"
 
-jmp_buf* __tryCatch_lastJmpBuf = NULL;
-void* __tryCatch_lastException = NULL;
-bool __tryCatch_exceptionNeedsFree = false;
+static jmp_buf* __tryCatch_lastJmpBuf = NULL;
+static void* __tryCatch_lastException = NULL;
+static bool __tryCatch_exceptionNeedsFree = false;
 
 jmp_buf* tryCatch_setJmpBuf(jmp_buf* buf) {
     jmp_buf* toReturn = __tryCatch_lastJmpBuf;
