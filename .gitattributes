@@ -1,0 +1,14 @@
+# mh_tryCatch - Try Catch for C
+#
+# Written in 2025 by mhahnFr
+#
+# This file is part of mh_tryCatch.
+#
+# To the extent possible under law, the author(s) have dedicated all copyright
+# and related and neighboring rights to this software to the public domain
+# worldwide. This software is distributed without any warranty.
+#
+# You should have received a copy of the CC0 Public Domain Dedication along with mh_tryCatch,
+# see the file LICENSE. If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
+
+*.h linguist-language=C
