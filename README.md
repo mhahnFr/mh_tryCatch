@@ -163,8 +163,9 @@ carefully it can be used encapsulated in C parts called by other languages (pote
 mechanisms).
 
 ## Dependencies
-C99
-free? malloc? typeof? bool?
+mh_tryCatch adheres to the C99 standard with one exception: the operator `typeof` is used.  
+This operator is defined by the widely used GNU C compiler and the LLVM Clang C compiler. Furthermore, it is part of the
+standard C23.
 
 ## Final notes
 This project is marked with CC0 1.0 Universal.
