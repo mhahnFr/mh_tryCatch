@@ -157,6 +157,11 @@ _Coming soon!_
 #### `void* tryCatch_getException(void)`
 _Coming soon!_
 
+### Compatibility
+This `try` and `catch` mechanism is not compatible with the implementation of C++ nor Objective-C. However, used
+carefully it can be used encapsulated in C parts called by other languages (potentially within their `try` and `catch`
+mechanisms).
+
 ## Dependencies
 C99
 free? malloc? typeof? bool?
