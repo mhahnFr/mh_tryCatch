@@ -2,8 +2,7 @@
 This project aims to add a lightweight `try` and `catch` mechanism as known from other languages (such as C++) to
 standard C.
 
-## Usage
-### Building
+## Building
 To use this small library, add the file [`try_catch.c`][2] to your build system. It should compile with the widely used
 warnings enabled.
 > [!TIP]
@@ -13,6 +12,78 @@ warnings enabled.
 > ```
 
 Then, simply include the header [`try_catch.h`][3]. 
+
+## Usage
+The following example illustrates how to use the `try` & `catch` system:
+```c
+// main.c
+
+#include <try_catch.h>
+
+#include <stdio.h> // For printf(...)
+
+void thrower(void) {
+    THROW("Message");
+}
+
+// Example structure used below
+struct exception {
+    int code;
+    const char* message;
+};
+
+void throwStruct(void) {
+    THROW(((struct exception) { 42, "Descriptive message" }));
+}
+
+void structHandling(void) {
+    TRY({
+        throwStruct();
+    }, CATCH(struct exception*, e, {
+        printf("Caught exception: %d - %s\n", e->code, e->message);
+    }))
+}    
+
+void foo(void) {
+    TRY({
+        thrower();
+    }, {
+        // No need for CATCH, the exception being thrown is also available using tryCatch_getException()
+        printf("Caught something: %p\n", tryCatch_getException());
+        RETHROW;
+    })
+}
+
+void bar(void) {
+    printf("Will not be printed\n");
+}
+
+int main(void) {
+    printf("Before the handling\n");
+    
+    TRY({
+        foo();
+        bar();
+    }, CATCH(const char*, message, {
+        printf("Caught an exception: %s\n", message);
+    }))
+    
+    structHandling();
+    
+    printf("After the handling\n");
+}
+```
+
+This example creates the following output:
+```
+Before the handling
+Caught something: 0x600002150040
+Caught an exception: Message
+Caught exception: 42 - Descriptive message
+After the handling
+```
+
+The detailed description follows below.
 
 ### Introduced macros
 The header introduces the macros `TRY`, `CATCH`, `THROW` and `RETHROW`.
@@ -157,7 +228,7 @@ _Coming soon!_
 #### `void* tryCatch_getException(void)`
 _Coming soon!_
 
-### Compatibility
+## Compatibility
 This `try` and `catch` mechanism is not compatible with the implementation of C++ nor Objective-C. However, used
 carefully it can be used encapsulated in C parts called by other languages (potentially within their `try` and `catch`
 mechanisms).
