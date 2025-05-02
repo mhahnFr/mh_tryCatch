@@ -220,7 +220,42 @@ Caught in main
 ```
 
 #### `CATCH`
-_Coming soon!_
+Instead of a code block called after an exception has been caught the macro `CATCH` may be used:
+```c
+// main.c
+
+#include <try_catch.h>
+
+#include <stdio.h> // For printf(...)
+
+void thrower(void) { THROW("Descriptive message"); }
+
+int main(void) {
+    TRY({
+        thrower();
+    }, CATCH(const char*, message, {
+        printf("Caught an exception: %s\n", message);
+    }))
+}
+```
+
+It takes the desired type and the name of the variable as well as the actual catch block to be invoked.
+
+> [!NOTE]
+> Exceptions are caught by reference:
+> ```c
+> // main.c
+> 
+> #include <try_catch.h>
+> 
+> int main(void) {
+>     TRY({
+>         THROW(1);
+>     }, CATCH(const int*, number, {
+>         // Do something meaningful here
+>     }))
+> }
+> ```
 
 #### `RETHROW`
 _Coming soon!_
