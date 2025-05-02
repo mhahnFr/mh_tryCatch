@@ -17,8 +17,11 @@
 
 #include "try_catch.h"
 
+/** Pointer to the previous jump buffer.                    */
 static jmp_buf* __tryCatch_lastJmpBuf = NULL;
+/** The lastly thrown exception.                            */
 static void* __tryCatch_lastException = NULL;
+/** Indicates whether the last exception needs to be freed. */
 static bool __tryCatch_exceptionNeedsFree = false;
 
 jmp_buf* tryCatch_setJmpBuf(jmp_buf* buf) {
