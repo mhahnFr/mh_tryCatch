@@ -65,6 +65,6 @@ void tryCatch_throw(void* exception);
 } while (0)
 
 #define CATCH(type, name, block) \
-type name = *(type*) tryCatch_getException(); { block }
+type name = (type) tryCatch_getException(); { block }
 
 #endif /* __mh_try_catch_h */
