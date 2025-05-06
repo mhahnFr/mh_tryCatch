@@ -89,7 +89,7 @@ The header introduces the macros [`TRY`][5], [`CATCH`][4], [`THROW`][7] and [`RE
 
 #### `THROW`
 The macro `THROW` takes one argument: the exception you wish to throw. It is copied.  
-If `THROW` is used without a surrounding `TRY` macro invocation the program is halted.
+If `THROW` is used without a surrounding [`TRY`][5] macro invocation the program is halted.
 
 > [!NOTE]
 > **Example:**
