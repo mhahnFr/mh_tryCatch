@@ -47,7 +47,8 @@ void foo(void) {
     TRY({
         thrower();
     }, {
-        // No need for CATCH, the exception being thrown is also available using tryCatch_getException()
+        // No need for CATCH, the exception being thrown is also available 
+        // using tryCatch_getException()
         printf("Caught something: %p\n", tryCatch_getException());
         RETHROW;
     })
@@ -249,9 +250,9 @@ It takes the desired type and the name of the variable as well as the actual cat
 > 
 > int main(void) {
 >     TRY({
->         THROW(1);
->     }, CATCH(const int*, number, {
->         // Do something meaningful here
+>         THROW(1); // Throwing an int
+>     }, CATCH(int*, number, {
+>         // Catching an int pointer
 >     }))
 > }
 > ```
@@ -348,18 +349,18 @@ void someFunc(void) {
     if (tryCatch_getException() != NULL) {
         printf("Handling exception %p\n", tryCatch_getException());
     } else {
-        printf("No exception handling on going.\n");
+        printf("No exception handling ongoing.\n");
     }
 }
 
 int main(void) {
     TRY({
         someFunc();
-        THROW("An descriptive message");
+        THROW("A descriptive message");
     }, CATCH(const char*, message, {
         printf("Caught exception: %s\n", message);
         
-        someFunc(); // No access to the variable message above.
+        someFunc(); // No access to the message variable above.
     }))
 } 
 ```
@@ -370,7 +371,7 @@ carefully be used encapsulated in C parts called by other languages (potentially
 mechanisms).
 
 ## Dependencies
-mh_tryCatch adheres to the C99 standard with one exception: the operator `typeof` is used.  
+[mh_tryCatch][8] adheres to the C99 standard with one exception: the operator `typeof` is used.  
 This operator is defined by the widely used GNU C compiler and the LLVM Clang C compiler. Furthermore, it is part of the
 standard C23.
 
@@ -386,3 +387,4 @@ Written in 2025 by [mhahnFr][1]
 [5]: #try
 [6]: #rethrow
 [7]: #throw
+[8]: https://github.com/mhahnFr/mh_tryCatch
