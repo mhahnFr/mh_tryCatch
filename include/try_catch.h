@@ -21,17 +21,17 @@
 #include <stdlib.h>
 #include <string.h>
 
-jmp_buf* tryCatch_setJmpBuf(jmp_buf* buf);
+//   P U B L I C   A P I
 
-void tryCatch_setException(void* exception);
+/**
+ * @brief Returns the pointer to the currently active exception.
+ *
+ * The memory behind the exception is maintained by mh_tryCatch.
+ *
+ * @return the pointer to the currently active exception or @c NULL if no exception is
+ * currently active
+ */
 void* tryCatch_getException(void);
-
-void tryCatch_setNeedsFree(bool needsFree);
-bool tryCatch_getNeedsFree(void);
-
-void tryCatch_freeException(bool force);
-
-void tryCatch_throw(void* exception);
 
 #define TRY(block, catchBlock) {                  \
     jmp_buf __env;                                \
@@ -66,5 +66,55 @@ void tryCatch_throw(void* exception);
 
 #define CATCH(type, name, block) \
 type name = (type) tryCatch_getException(); { block }
+
+
+// I M P L E M E N T A T I O N - S P E C I F I C   F U N C T I O N S
+//
+// Please do not call them directly.
+
+/**
+ * Stores the given @c jmp_buf and returns the previously stored one.
+ *
+ * @param buf the new @c jmp_buf to store
+ * @return the previously stored one
+ */
+jmp_buf* tryCatch_setJmpBuf(jmp_buf* buf);
+
+/**
+ * Stores the given exception pointer.
+ *
+ * @param exception the exception pointer to be stored
+ */
+void tryCatch_setException(void* exception);
+
+/**
+ * Sets whether the currently active exception needs to be freed after use.
+ *
+ * @param needsFree whether to free the current exception
+ */
+void tryCatch_setNeedsFree(bool needsFree);
+
+/**
+ * Returns whether the currently active exception needs to be freed after use.
+ *
+ * @return whether to free the currently active exception after use
+ */
+bool tryCatch_getNeedsFree(void);
+
+/**
+ * @brief Frees the currently active exception.
+ *
+ * Only frees the exception if it is marked to be freed after use.
+ *
+ * @param force whether to free the memory without check
+ */
+void tryCatch_freeException(bool force);
+
+/**
+ * Performs the actual throwing of the given exception.
+ *
+ * @param exception the current exception pointer
+ */
+void tryCatch_throw(void* exception);
 
 #endif /* __mh_try_catch_h */
