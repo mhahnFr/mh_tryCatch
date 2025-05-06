@@ -285,7 +285,33 @@ int main(void) {
 ```
 
 #### `RETHROW`
-_Coming soon!_
+Instead of having to throw a new exception, the current exception can be rethrown:
+```c
+// main.c
+
+#include <try_catch.h>
+
+#include <stdio.h> // For printf(...)
+
+void sampleFunc(void) {
+    TRY({
+        THROW("Another message");
+    }, CATCH(const char*, message, {
+        printf("Caught exception: %s\n", message);
+        
+        RETHROW;
+    }))
+}
+
+int main(void) {
+    TRY({
+        sampleFunc();
+    }, CATCH(const char*, message, {
+        // Prints the same message as sampleFunc above:
+        printf("Caught exception in main: %s\n", message);
+    }))
+}
+```
 
 #### `void* tryCatch_getException(void)`
 _Coming soon!_
