@@ -257,6 +257,33 @@ It takes the desired type and the name of the variable as well as the actual cat
 > }
 > ```
 
+Throwing an exception from within the catch block is also possible:
+```c
+// main.c
+
+#include <try_catch.h>
+
+#include <stdio.h> // For printf(...)
+
+void sampleFunc(void) {
+    TRY({
+        THROW("A message");
+    }, CATCH(const char*, message, {
+        printf("Caught exception: %s\n", message);
+        
+        THROW("But the caller needs to notice, too.");
+    }))
+}
+
+int main(void) {
+    TRY({
+        sampleFunc();
+    }, CATCH(const char*, message, {
+        printf("Caught exception: %s\n", message);
+    }))
+}
+```
+
 #### `RETHROW`
 _Coming soon!_
 
