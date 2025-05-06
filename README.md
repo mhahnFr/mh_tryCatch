@@ -3,8 +3,7 @@ This project aims to add a lightweight `try` and `catch` mechanism as known from
 standard C.
 
 ## Building
-To use this small library, add the file [`try_catch.c`][2] to your build system. It should compile with the widely used
-warnings enabled.
+To use this small library, add the file [`try_catch.c`][2] to your build system. It should compile without warnings.
 > [!TIP]
 > Example compilation:
 > ```shell
@@ -86,7 +85,7 @@ After the handling
 The detailed description follows below.
 
 ### Introduced macros
-The header introduces the macros `TRY`, `CATCH`, `THROW` and `RETHROW`.
+The header introduces the macros [`TRY`][5], [`CATCH`][4], [`THROW`][7] and [`RETHROW`][6].
 
 #### `THROW`
 The macro `THROW` takes one argument: the exception you wish to throw. It is copied.  
@@ -314,11 +313,60 @@ int main(void) {
 ```
 
 #### `void* tryCatch_getException(void)`
-_Coming soon!_
+Using the introduced function `tryCatch_getException` the pointer to the current exception can be obtained. Outside a
+catch block it is the `NULL` pointer.  
+This way, the thrown exception can be accessed without the usage of the [`CATCH`][4] macro:
+```c
+// main.c
+
+#include <try_catch.h>
+
+#include <stdio.h> // For printf(...)
+
+void thrower(void) { THROW("The error message"); }
+
+int main(void) {
+    TRY({
+        thrower();
+    }, {
+        printf("Caught exception: %p\n", tryCatch_getException());
+    }))
+}
+```
+
+This function may prove more useful in functions called within the catch block that do not have the access to the
+exception variable of the [`CATCH`][4] macro:
+```c
+// main.c
+
+#include <try_catch.h>
+
+#include <stdio.h> // For printf(...)
+
+void someFunc(void) {
+    // Do we handle an exception? Check the value of tryCatch_getException:
+    if (tryCatch_getException() != NULL) {
+        printf("Handling exception %p\n", tryCatch_getException());
+    } else {
+        printf("No exception handling on going.\n");
+    }
+}
+
+int main(void) {
+    TRY({
+        someFunc();
+        THROW("An descriptive message");
+    }, CATCH(const char*, message, {
+        printf("Caught exception: %s\n", message);
+        
+        someFunc(); // No access to the variable message above.
+    }))
+} 
+```
 
 ## Compatibility
-This `try` and `catch` mechanism is not compatible with the implementation of C++ nor Objective-C. However, used
-carefully it can be used encapsulated in C parts called by other languages (potentially within their `try` and `catch`
+This `try` and `catch` mechanism is not compatible with the implementation of C++ nor Objective-C. However, it can
+carefully be used encapsulated in C parts called by other languages (potentially within their `try` and `catch`
 mechanisms).
 
 ## Dependencies
@@ -334,3 +382,7 @@ Written in 2025 by [mhahnFr][1]
 [1]: https://github.com/mhahnFr
 [2]: /src/try_catch.c
 [3]: /include/try_catch.h
+[4]: #catch
+[5]: #try
+[6]: #rethrow
+[7]: #throw
