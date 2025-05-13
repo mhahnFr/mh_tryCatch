@@ -51,11 +51,26 @@ void* tryCatch_getException(void);
     tryCatch_setException(__lastExc);             \
 }
 
+/**
+ * @brief Rethrows the currently active exception.
+ *
+ * Produces less overhead than the following equivalent expression:
+ * `THROW(*(<your exception type>*) tryCatch_getException())`
+ */
 #define RETHROW do {                         \
     tryCatch_setNeedsFree(false);            \
     tryCatch_throw(tryCatch_getException()); \
 } while (0)
 
+/**
+ * @brief Throws the given value.
+ *
+ * No statement after the invocation of this macro is reachable. A copy of the
+ * given value is stored by the implementation and passed to the next reachable
+ * catch block. The exception can be queried using `tryCatch_getException()`.
+ *
+ * @param value the value to be thrown
+ */
 #define THROW(value) do {                        \
     tryCatch_freeException(false);               \
     void* __exception = malloc(sizeof((value))); \
