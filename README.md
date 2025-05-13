@@ -7,7 +7,7 @@ To use this small library, add the file [`try_catch.c`][2] to your build system.
 > [!TIP]
 > Example compilation:
 > ```shell
-> cc -Wall -Wextra -c try_catch.c
+> cc -Wall -Wextra -c try_catch.c -I <path/to/mh_tryCatch>/include
 > ```
 
 Then, simply include the header [`try_catch.h`][3]. 
@@ -92,51 +92,49 @@ The header introduces the macros [`TRY`][5], [`CATCH`][4], [`THROW`][7] and [`RE
 The macro `THROW` takes one argument: the exception you wish to throw. It is copied.  
 If `THROW` is used without a surrounding [`TRY`][5] macro invocation the program is halted.
 
-> [!NOTE]
-> **Example:**
-> ```c
-> // main.c
-> 
-> #include <try_catch.h>
-> 
-> #include <stdio.h> // For printf(...)
-> 
-> int main(void) {
->     printf("Before\n");
-> 
->     THROW("Something descriptive");
-> 
->     // Never reached
->     printf("After\n");
-> }
-> ```
+Basic **example:**
+```c
+// main.c
+
+#include <try_catch.h>
+
+#include <stdio.h> // For printf(...)
+
+int main(void) {
+    printf("Before\n");
+
+    THROW("Something descriptive");
+
+    // Never reached
+    printf("After\n");
+}
+```
 
 #### `TRY`
 The macro `TRY` takes two blocks as parameter: the first block that may throw an exception and the second block that is
 called if an exception has been thrown.
 
-> [!NOTE]
-> **Example:**
-> ```c
-> // main.c
->
-> #include <try_catch.h>
-> 
-> #include <stdio.h> // For printf(...)
-> 
-> int main(void) {
->     printf("Before\n");
-> 
->     TRY({
->         printf("Within try\n");
->         THROW("Descriptive error message");
->     }, {
->         printf("Within the catch block, e. g. caught an exception\n");
->     })
-> 
->     printf("After\n");
-> }
-> ```
+Basic **example:**
+```c
+// main.c
+
+#include <try_catch.h>
+
+#include <stdio.h> // For printf(...)
+
+int main(void) {
+    printf("Before\n");
+
+    TRY({
+        printf("Within try\n");
+        THROW("Descriptive error message");
+    }, {
+        printf("Within the catch block, e. g. caught an exception\n");
+    })
+
+    printf("After\n");
+}
+```
 
 `TRY` blocks may be nested:
 ```c
@@ -331,7 +329,7 @@ int main(void) {
         thrower();
     }, {
         printf("Caught exception: %p\n", tryCatch_getException());
-    }))
+    })
 }
 ```
 
