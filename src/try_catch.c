@@ -19,12 +19,13 @@
 
 #define TRY_CATCH_OVERHEAD sizeof(char*)
 
-/** Pointer to the previous jump buffer.                    */
+/** Pointer to the previous jump buffer.                         */
 static jmp_buf* __tryCatch_lastJmpBuf = NULL;
-/** The lastly thrown exception.                            */
+/** The lastly thrown exception.                                 */
 static void* __tryCatch_lastException = NULL;
-/** Indicates whether the last exception needs to be freed. */
+/** Indicates whether the last exception needs to be freed.      */
 static bool __tryCatch_exceptionNeedsFree = false;
+/** The terminate handler called if no catch block is reachable. */
 static tryCatch_TerminateHandler __tryCatch_terminateHandler = NULL;
 
 jmp_buf* tryCatch_setJmpBuf(jmp_buf* buf) {
