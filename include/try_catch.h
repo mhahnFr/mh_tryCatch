@@ -33,6 +33,9 @@
  */
 void* tryCatch_getException(void);
 
+typedef void (*tryCatch_TerminateHandler)(void);
+void tryCatch_setTerminateHandler(tryCatch_TerminateHandler handler);
+
 #define TRY(block, catchBlock) {                  \
     jmp_buf __env;                                \
     jmp_buf* __prev = tryCatch_setJmpBuf(&__env); \

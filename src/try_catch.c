@@ -25,6 +25,7 @@ static jmp_buf* __tryCatch_lastJmpBuf = NULL;
 static void* __tryCatch_lastException = NULL;
 /** Indicates whether the last exception needs to be freed. */
 static bool __tryCatch_exceptionNeedsFree = false;
+static tryCatch_TerminateHandler __tryCatch_terminateHandler = NULL;
 
 jmp_buf* tryCatch_setJmpBuf(jmp_buf* buf) {
     jmp_buf* toReturn = __tryCatch_lastJmpBuf;
@@ -34,6 +35,10 @@ jmp_buf* tryCatch_setJmpBuf(jmp_buf* buf) {
 
 void* tryCatch_getException(void) {
     return (char*) __tryCatch_lastException + TRY_CATCH_OVERHEAD;
+}
+
+void tryCatch_setTerminateHandler(const tryCatch_TerminateHandler handler) {
+    __tryCatch_terminateHandler = handler;
 }
 
 void tryCatch_setException(void* ex) {
@@ -71,7 +76,12 @@ void tryCatch_freeException(bool force) {
 void tryCatch_throw(void* exception) {
     tryCatch_setException(exception);
     if (__tryCatch_lastJmpBuf == NULL) {
-        fprintf(stderr, "mhahnFr's try_catch: Terminating due to uncaught exception of type %s!\n", *(char**) __tryCatch_lastException);
+        if (__tryCatch_terminateHandler == NULL) {
+            fprintf(stderr, "mhahnFr's try_catch: Terminating due to uncaught exception of type %s!\n",
+                *(char**) __tryCatch_lastException);
+        } else {
+            __tryCatch_terminateHandler();
+        }
         abort();
     }
     longjmp(*__tryCatch_lastJmpBuf, 1);
