@@ -17,6 +17,8 @@
 
 #include "try_catch.h"
 
+#define TRY_CATCH_OVERHEAD sizeof(char*)
+
 /** Pointer to the previous jump buffer.                    */
 static jmp_buf* __tryCatch_lastJmpBuf = NULL;
 /** The lastly thrown exception.                            */
@@ -31,11 +33,11 @@ jmp_buf* tryCatch_setJmpBuf(jmp_buf* buf) {
 }
 
 void* tryCatch_getException(void) {
-    return __tryCatch_lastException;
+    return (char*) __tryCatch_lastException + TRY_CATCH_OVERHEAD;
 }
 
 void tryCatch_setException(void* ex) {
-    __tryCatch_lastException = ex;
+    __tryCatch_lastException = (char*) ex - TRY_CATCH_OVERHEAD;
 }
 
 void tryCatch_setNeedsFree(bool f) {
@@ -44,6 +46,20 @@ void tryCatch_setNeedsFree(bool f) {
 
 bool tryCatch_getNeedsFree(void) {
     return __tryCatch_exceptionNeedsFree;
+}
+
+void* tryCatch_allocateException(const size_t size) {
+    char* toReturn = malloc(size + TRY_CATCH_OVERHEAD);
+
+    return toReturn + TRY_CATCH_OVERHEAD;
+}
+
+bool tryCatch_exceptionIsType(const char* type) {
+    return strcmp(type, *(char**) __tryCatch_lastException) == 0;
+}
+
+void tryCatch_setExceptionType(void* exception, const char* type) {
+    *(const char**) ((char*) exception - TRY_CATCH_OVERHEAD) = type;
 }
 
 void tryCatch_freeException(bool force) {
@@ -55,7 +71,7 @@ void tryCatch_freeException(bool force) {
 void tryCatch_throw(void* exception) {
     tryCatch_setException(exception);
     if (__tryCatch_lastJmpBuf == NULL) {
-        fputs("mhahnFr's try_catch: Terminating due to uncaught exception!\n", stderr);
+        fprintf(stderr, "mhahnFr's try_catch: Terminating due to uncaught exception of type %s!\n", *(char**) __tryCatch_lastException);
         abort();
     }
     longjmp(*__tryCatch_lastJmpBuf, 1);

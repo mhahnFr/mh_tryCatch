@@ -43,6 +43,7 @@ void* tryCatch_getException(void);
     } else {                                      \
         tryCatch_setJmpBuf(__prev);               \
         tryCatch_setNeedsFree(true);              \
+        bool __handled = false;                   \
         { catchBlock }                            \
         tryCatch_setNeedsFree(false);             \
     }                                             \
@@ -51,21 +52,47 @@ void* tryCatch_getException(void);
     tryCatch_setException(__lastExc);             \
 }
 
+#define MH_TC_TYPE(type) type:#type
+
+#ifdef MH_TRY_CATCH_TYPES
+# define MH_TRY_CATCH_TYPE_COMMA ,
+#else
+# define MH_TRY_CATCH_TYPES
+# define MH_TRY_CATCH_TYPE_COMMA
+#endif
+
+#define MH_TC_TYPE_STRING(type) _Generic(type, MH_TC_TYPE(int), MH_TC_TYPE(float), MH_TC_TYPE(void*) MH_TRY_CATCH_TYPE_COMMA MH_TRY_CATCH_TYPES)
+
+#define THROW_IMPL(typeString, value) do {                        \
+    tryCatch_freeException(false);                                \
+    typeof((value)) __vl = (value);                               \
+    void* __exception = tryCatch_allocateException(sizeof(__vl)); \
+    memcpy(__exception, &__vl, sizeof(__vl));                     \
+    tryCatch_setExceptionType(__exception, typeString);           \
+    tryCatch_throw(__exception);                                  \
+} while (0)
+
+#define THROW(value) THROW_IMPL(MH_TC_TYPE_STRING(value), value)
+#define THROW_TYPE(type, value) THROW_IMPL(#type, (type) value)
+#define THROW1(type, value) THROW_IMPL(#type, (type) value)
+
+#define CATCH(type, name, block, ...)                               \
+    if (tryCatch_exceptionIsType(#type)) {                          \
+        const type name = *((const type*) tryCatch_getException()); \
+        __handled = true;                                           \
+        { block }                                                   \
+    } else { __VA_ARGS__ if (!__handled) RETHROW; }
+
 #define RETHROW do {                         \
     tryCatch_setNeedsFree(false);            \
     tryCatch_throw(tryCatch_getException()); \
 } while (0)
 
-#define THROW(value) do {                        \
-    tryCatch_freeException(false);               \
-    void* __exception = malloc(sizeof((value))); \
-    typeof((value)) __vl = (value);              \
-    memcpy(__exception, &__vl, sizeof((value))); \
-    tryCatch_throw(__exception);                 \
-} while (0)
-
-#define CATCH(type, name, block) \
-type name = (type) tryCatch_getException(); { block }
+#define CATCH_ALL(name, block, ...)             \
+    __handled = true;                           \
+    const void* name = tryCatch_getException(); \
+    { block }                                   \
+    if (!__handled) { __VA_ARGS__ }
 
 
 // I M P L E M E N T A T I O N - S P E C I F I C   F U N C T I O N S
@@ -87,6 +114,10 @@ jmp_buf* tryCatch_setJmpBuf(jmp_buf* buf);
  */
 void tryCatch_setException(void* exception);
 
+void tryCatch_setExceptionType(void* exception, const char* type);
+
+bool tryCatch_exceptionIsType(const char* type);
+
 /**
  * Sets whether the currently active exception needs to be freed after use.
  *
@@ -100,6 +131,8 @@ void tryCatch_setNeedsFree(bool needsFree);
  * @return whether to free the currently active exception after use
  */
 bool tryCatch_getNeedsFree(void);
+
+void* tryCatch_allocateException(size_t size);
 
 /**
  * @brief Frees the currently active exception.
