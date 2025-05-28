@@ -103,6 +103,11 @@ void tryCatch_setTerminateHandler(tryCatch_TerminateHandler handler);
         { block }                                                   \
     } else { __VA_ARGS__ if (!__handled) RETHROW; }
 
+/**
+ * @brief Rethrows the currently active exception.
+ *
+ * If used without active exception, the program is halted.
+ */
 #define RETHROW do {                         \
     tryCatch_setNeedsFree(false);            \
     tryCatch_throw(tryCatch_getException()); \
