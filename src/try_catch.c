@@ -20,38 +20,38 @@
 #define TRY_CATCH_OVERHEAD sizeof(char*)
 
 /** Pointer to the previous jump buffer.                         */
-static jmp_buf* __tryCatch_lastJmpBuf = NULL;
+static jmp_buf* tryCatch_lastJmpBuf = NULL;
 /** The lastly thrown exception.                                 */
-static void* __tryCatch_lastException = NULL;
+static void* tryCatch_lastException = NULL;
 /** Indicates whether the last exception needs to be freed.      */
-static bool __tryCatch_exceptionNeedsFree = false;
+static bool tryCatch_exceptionNeedsFree = false;
 /** The terminate handler called if no catch block is reachable. */
-static tryCatch_TerminateHandler __tryCatch_terminateHandler = NULL;
+static tryCatch_TerminateHandler tryCatch_terminateHandler = NULL;
 
 jmp_buf* tryCatch_setJmpBuf(jmp_buf* buf) {
-    jmp_buf* toReturn = __tryCatch_lastJmpBuf;
-    __tryCatch_lastJmpBuf = buf;
+    jmp_buf* toReturn = tryCatch_lastJmpBuf;
+    tryCatch_lastJmpBuf = buf;
     return toReturn;
 }
 
 void* tryCatch_getException(void) {
-    return (char*) __tryCatch_lastException + TRY_CATCH_OVERHEAD;
+    return (char*) tryCatch_lastException + TRY_CATCH_OVERHEAD;
 }
 
 void tryCatch_setTerminateHandler(const tryCatch_TerminateHandler handler) {
-    __tryCatch_terminateHandler = handler;
+    tryCatch_terminateHandler = handler;
 }
 
 void tryCatch_setException(void* ex) {
-    __tryCatch_lastException = (char*) ex - TRY_CATCH_OVERHEAD;
+    tryCatch_lastException = (char*) ex - TRY_CATCH_OVERHEAD;
 }
 
 void tryCatch_setNeedsFree(bool f) {
-    __tryCatch_exceptionNeedsFree = f;
+    tryCatch_exceptionNeedsFree = f;
 }
 
 bool tryCatch_getNeedsFree(void) {
-    return __tryCatch_exceptionNeedsFree;
+    return tryCatch_exceptionNeedsFree;
 }
 
 void* tryCatch_allocateException(const size_t size) {
@@ -61,7 +61,7 @@ void* tryCatch_allocateException(const size_t size) {
 }
 
 bool tryCatch_exceptionIsType(const char* type) {
-    return strcmp(type, *(char**) __tryCatch_lastException) == 0;
+    return strcmp(type, *(char**) tryCatch_lastException) == 0;
 }
 
 void tryCatch_setExceptionType(void* exception, const char* type) {
@@ -69,21 +69,21 @@ void tryCatch_setExceptionType(void* exception, const char* type) {
 }
 
 void tryCatch_freeException(bool force) {
-    if (force || __tryCatch_exceptionNeedsFree) {
-        free(__tryCatch_lastException);
+    if (force || tryCatch_exceptionNeedsFree) {
+        free(tryCatch_lastException);
     }
 }
 
 void tryCatch_throw(void* exception) {
     tryCatch_setException(exception);
-    if (__tryCatch_lastJmpBuf == NULL) {
-        if (__tryCatch_terminateHandler == NULL) {
+    if (tryCatch_lastJmpBuf == NULL) {
+        if (tryCatch_terminateHandler == NULL) {
             fprintf(stderr, "mhahnFr's try_catch: Terminating due to uncaught exception of type %s!\n",
-                *(char**) __tryCatch_lastException);
+                *(char**) tryCatch_lastException);
         } else {
-            __tryCatch_terminateHandler();
+            tryCatch_terminateHandler();
         }
         abort();
     }
-    longjmp(*__tryCatch_lastJmpBuf, 1);
+    longjmp(*tryCatch_lastJmpBuf, 1);
 }
