@@ -28,6 +28,15 @@ static bool tryCatch_exceptionNeedsFree = false;
 /** The terminate handler called if no catch block is reachable. */
 static tryCatch_TerminateHandler tryCatch_terminateHandler = NULL;
 
+/**
+ * @brief Terminates the program.
+ *
+ * If the given message is {@c NULL}, the active exception is handled or the
+ * optionally set terminate handler is called.<br>
+ * Otherwise, the given message is printed.
+ *
+ * @param message the internal error message
+ */
 MH_TC_NORETURN static inline void tryCatch_terminate(const char* message) {
     if (message == NULL) {
         if (tryCatch_terminateHandler == NULL) {
