@@ -42,12 +42,12 @@ void tryCatch_setTerminateHandler(const tryCatch_TerminateHandler handler) {
     tryCatch_terminateHandler = handler;
 }
 
-void tryCatch_setException(void* ex) {
-    tryCatch_lastException = (char*) ex - TRY_CATCH_OVERHEAD;
+void tryCatch_setException(void* exception) {
+    tryCatch_lastException = (char*) exception - TRY_CATCH_OVERHEAD;
 }
 
-void tryCatch_setNeedsFree(bool f) {
-    tryCatch_exceptionNeedsFree = f;
+void tryCatch_setNeedsFree(const bool needsFree) {
+    tryCatch_exceptionNeedsFree = needsFree;
 }
 
 bool tryCatch_getNeedsFree(void) {
@@ -68,7 +68,7 @@ void tryCatch_setExceptionType(void* exception, const char* type) {
     *(const char**) ((char*) exception - TRY_CATCH_OVERHEAD) = type;
 }
 
-void tryCatch_freeException(bool force) {
+void tryCatch_freeException(const bool force) {
     if (force || tryCatch_exceptionNeedsFree) {
         free(tryCatch_lastException);
     }
