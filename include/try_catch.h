@@ -21,6 +21,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 //   P U B L I C   A P I
 
 /**
@@ -183,5 +187,9 @@ void tryCatch_freeException(bool force);
  * @param exception the current exception pointer
  */
 void tryCatch_throw(void* exception);
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif /* __mh_try_catch_h */
