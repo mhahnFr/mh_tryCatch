@@ -33,7 +33,20 @@
  */
 void* tryCatch_getException(void);
 
+/**
+ * The required function signature for terminate handlers called when an
+ * uncaught exception will halt the program.
+ */
 typedef void (*tryCatch_TerminateHandler)(void);
+
+/**
+ * @brief Sets a handler that is called when an uncaught exception will halt the
+ * program.
+ *
+ * Pass @c NULL to unregister the handler.
+ *
+ * @param handler the handler function to be called
+ */
 void tryCatch_setTerminateHandler(tryCatch_TerminateHandler handler);
 
 #define TRY(block, catchBlock) {                  \
@@ -117,8 +130,20 @@ jmp_buf* tryCatch_setJmpBuf(jmp_buf* buf);
  */
 void tryCatch_setException(void* exception);
 
+/**
+ * Stores the type name for the given exception.
+ *
+ * @param exception the user exception pointer
+ * @param type the type name of the exception
+ */
 void tryCatch_setExceptionType(void* exception, const char* type);
 
+/**
+ * Returns whether the current exception is of the given type.
+ *
+ * @param type the type to check
+ * @return whether the currently active exception is of the given type
+ */
 bool tryCatch_exceptionIsType(const char* type);
 
 /**
@@ -135,6 +160,12 @@ void tryCatch_setNeedsFree(bool needsFree);
  */
 bool tryCatch_getNeedsFree(void);
 
+/**
+ * Allocates an exception able to hold at least the given amount of memory.
+ *
+ * @param size the requested size for the exception
+ * @return the allocated exception memory
+ */
 void* tryCatch_allocateException(size_t size);
 
 /**
