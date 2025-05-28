@@ -181,12 +181,27 @@ void* tryCatch_allocateException(size_t size);
  */
 void tryCatch_freeException(bool force);
 
+#ifdef __cplusplus
+# if __cplusplus >= 201103L
+#  define MH_TC_NORETURN [[noreturn]]
+# else
+#  define MH_TC_NORETURN
+# endif
+#elif defined(__STDC_VERSION__)
+# if __STDC_VERSION__ < 202311L
+#  define MH_TC_NORETURN _Noreturn
+# else
+#  define MH_TC_NORETURN [[noreturn]]
+# endif
+# define MH_TC_NORETURN
+#endif
+
 /**
  * Performs the actual throwing of the given exception.
  *
  * @param exception the current exception pointer
  */
-void tryCatch_throw(void* exception);
+MH_TC_NORETURN void tryCatch_throw(void* exception);
 
 #ifdef __cplusplus
 } // extern "C"

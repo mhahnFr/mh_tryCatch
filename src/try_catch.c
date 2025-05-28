@@ -28,16 +28,6 @@ static bool tryCatch_exceptionNeedsFree = false;
 /** The terminate handler called if no catch block is reachable. */
 static tryCatch_TerminateHandler tryCatch_terminateHandler = NULL;
 
-#if defined(__STDC_VERSION__)
-# if __STDC_VERSION__ < 202311L
-#  define MH_TC_NORETURN _Noreturn
-# else
-#  define MH_TC_NORETURN [[noreturn]]
-# endif
-#else
-# define MH_TC_NORETURN
-#endif
-
 MH_TC_NORETURN static inline void tryCatch_terminate(const char* message) {
     if (message == NULL) {
         if (tryCatch_terminateHandler == NULL) {
@@ -104,7 +94,7 @@ void tryCatch_freeException(const bool force) {
     }
 }
 
-void tryCatch_throw(void* exception) {
+MH_TC_NORETURN void tryCatch_throw(void* exception) {
     if (exception == NULL) {
         tryCatch_terminate("thrown exception is NULL.\n"
             "                     This is most likely caused by using RETHROW without an active exception");
