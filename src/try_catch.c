@@ -28,6 +28,31 @@ static bool tryCatch_exceptionNeedsFree = false;
 /** The terminate handler called if no catch block is reachable. */
 static tryCatch_TerminateHandler tryCatch_terminateHandler = NULL;
 
+#if defined(__STDC_VERSION__)
+# if __STDC_VERSION__ < 202311L
+#  define MH_TC_NORETURN _Noreturn
+# else
+#  define MH_TC_NORETURN [[noreturn]]
+# endif
+#else
+# define MH_TC_NORETURN
+#endif
+
+MH_TC_NORETURN static inline void tryCatch_terminate(const char* message) {
+    if (message == NULL) {
+        if (tryCatch_terminateHandler == NULL) {
+            fprintf(stderr, "mhahnFr's try_catch: Terminating due to uncaught exception of type %s!\n",
+                *(char**) tryCatch_lastException);
+        } else {
+            tryCatch_terminateHandler();
+        }
+    } else {
+        fprintf(stderr, "mhahnFr's try_catch: Terminating abnormally because %s.\n",
+            message);
+    }
+    abort();
+}
+
 jmp_buf* tryCatch_setJmpBuf(jmp_buf* buf) {
     jmp_buf* toReturn = tryCatch_lastJmpBuf;
     tryCatch_lastJmpBuf = buf;
@@ -35,6 +60,9 @@ jmp_buf* tryCatch_setJmpBuf(jmp_buf* buf) {
 }
 
 void* tryCatch_getException(void) {
+    if (tryCatch_lastException == NULL) {
+        return NULL;
+    }
     return (char*) tryCatch_lastException + TRY_CATCH_OVERHEAD;
 }
 
@@ -56,7 +84,9 @@ bool tryCatch_getNeedsFree(void) {
 
 void* tryCatch_allocateException(const size_t size) {
     char* toReturn = malloc(size + TRY_CATCH_OVERHEAD);
-
+    if (toReturn == NULL) {
+        tryCatch_terminate("exception allocation failed");
+    }
     return toReturn + TRY_CATCH_OVERHEAD;
 }
 
@@ -75,15 +105,13 @@ void tryCatch_freeException(const bool force) {
 }
 
 void tryCatch_throw(void* exception) {
+    if (exception == NULL) {
+        tryCatch_terminate("thrown exception is NULL.\n"
+            "                     This is most likely caused by using RETHROW without an active exception");
+    }
     tryCatch_setException(exception);
     if (tryCatch_lastJmpBuf == NULL) {
-        if (tryCatch_terminateHandler == NULL) {
-            fprintf(stderr, "mhahnFr's try_catch: Terminating due to uncaught exception of type %s!\n",
-                *(char**) tryCatch_lastException);
-        } else {
-            tryCatch_terminateHandler();
-        }
-        abort();
+        tryCatch_terminate(NULL);
     }
     longjmp(*tryCatch_lastJmpBuf, 1);
 }
