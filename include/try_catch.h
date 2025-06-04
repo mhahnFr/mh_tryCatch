@@ -54,22 +54,22 @@ typedef void (*tryCatch_TerminateHandler)(void);
 void tryCatch_setTerminateHandler(tryCatch_TerminateHandler handler);
 
 #define TRY(block, catchBlock) {                  \
-    jmp_buf __env;                                \
-    jmp_buf* __prev = privateTryCatch_setJmpBuf(&__env); \
-    void* __lastExc = tryCatch_getException();    \
-    int __result = setjmp(__env);                 \
-    if (__result == 0) {                          \
+    jmp_buf _env;                                \
+    jmp_buf* _prev = privateTryCatch_setJmpBuf(&_env); \
+    void* _lastExc = tryCatch_getException();    \
+    int _result = setjmp(_env);                 \
+    if (_result == 0) {                          \
         { block }                                 \
     } else {                                      \
-        privateTryCatch_setJmpBuf(__prev);               \
+        privateTryCatch_setJmpBuf(_prev);               \
         privateTryCatch_setNeedsFree(true);              \
-        bool __handled = false;                   \
+        bool _handled = false;                   \
         { catchBlock }                            \
         privateTryCatch_setNeedsFree(false);             \
     }                                             \
-    privateTryCatch_setJmpBuf(__prev);                   \
+    privateTryCatch_setJmpBuf(_prev);                   \
     privateTryCatch_freeException(true);                 \
-    privateTryCatch_setException(__lastExc);             \
+    privateTryCatch_setException(_lastExc);             \
 }
 
 #define MH_TC_TYPE(type) type:#type
@@ -85,11 +85,11 @@ void tryCatch_setTerminateHandler(tryCatch_TerminateHandler handler);
 
 #define THROW_IMPL(typeString, value) do {                        \
     privateTryCatch_freeException(false);                                \
-    typeof((value)) __vl = (value);                               \
-    void* __exception = privateTryCatch_allocateException(sizeof(__vl)); \
-    memcpy(__exception, &__vl, sizeof(__vl));                     \
-    privateTryCatch_setExceptionType(__exception, typeString);           \
-    privateTryCatch_throw(__exception);                                  \
+    typeof((value)) _vl = (value);                               \
+    void* _exception = privateTryCatch_allocateException(sizeof(_vl)); \
+    memcpy(_exception, &_vl, sizeof(_vl));                     \
+    privateTryCatch_setExceptionType(_exception, typeString);           \
+    privateTryCatch_throw(_exception);                                  \
 } while (0)
 
 #define THROW(value) THROW_IMPL(MH_TC_TYPE_STRING(value), value)
@@ -99,9 +99,9 @@ void tryCatch_setTerminateHandler(tryCatch_TerminateHandler handler);
 #define CATCH(type, name, block, ...)                               \
     if (privateTryCatch_exceptionIsType(#type)) {                          \
         const type name = *((const type*) tryCatch_getException()); \
-        __handled = true;                                           \
+        _handled = true;                                           \
         { block }                                                   \
-    } else { __VA_ARGS__ if (!__handled) RETHROW; }
+    } else { __VA_ARGS__ if (!_handled) RETHROW; }
 
 /**
  * @brief Rethrows the currently active exception.
@@ -114,10 +114,10 @@ void tryCatch_setTerminateHandler(tryCatch_TerminateHandler handler);
 } while (0)
 
 #define CATCH_ALL(name, block, ...)             \
-    __handled = true;                           \
+    _handled = true;                           \
     const void* name = tryCatch_getException(); \
     { block }                                   \
-    if (!__handled) { __VA_ARGS__ }
+    if (!_handled) { __VA_ARGS__ }
 
 
 // I M P L E M E N T A T I O N - S P E C I F I C   F U N C T I O N S
