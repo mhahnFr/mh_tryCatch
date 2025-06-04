@@ -77,10 +77,6 @@ void privateTryCatch_setNeedsFree(const bool needsFree) {
     privateTryCatch_exceptionNeedsFree = needsFree;
 }
 
-bool privateTryCatch_getNeedsFree(void) {
-    return privateTryCatch_exceptionNeedsFree;
-}
-
 void* privateTryCatch_allocateException(const size_t size) {
     char* toReturn = malloc(size + TRY_CATCH_OVERHEAD);
     if (toReturn == NULL) {

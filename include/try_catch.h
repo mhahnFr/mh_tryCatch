@@ -163,13 +163,6 @@ bool privateTryCatch_exceptionIsType(const char* type);
 void privateTryCatch_setNeedsFree(bool needsFree);
 
 /**
- * Returns whether the currently active exception needs to be freed after use.
- *
- * @return whether to free the currently active exception after use
- */
-bool privateTryCatch_getNeedsFree(void);
-
-/**
  * Allocates an exception able to hold at least the given amount of memory.
  *
  * @param size the requested size for the exception
