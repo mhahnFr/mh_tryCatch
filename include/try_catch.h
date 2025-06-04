@@ -55,21 +55,21 @@ void tryCatch_setTerminateHandler(tryCatch_TerminateHandler handler);
 
 #define TRY(block, catchBlock) {                  \
     jmp_buf __env;                                \
-    jmp_buf* __prev = tryCatch_setJmpBuf(&__env); \
+    jmp_buf* __prev = privateTryCatch_setJmpBuf(&__env); \
     void* __lastExc = tryCatch_getException();    \
     int __result = setjmp(__env);                 \
     if (__result == 0) {                          \
         { block }                                 \
     } else {                                      \
-        tryCatch_setJmpBuf(__prev);               \
-        tryCatch_setNeedsFree(true);              \
+        privateTryCatch_setJmpBuf(__prev);               \
+        privateTryCatch_setNeedsFree(true);              \
         bool __handled = false;                   \
         { catchBlock }                            \
-        tryCatch_setNeedsFree(false);             \
+        privateTryCatch_setNeedsFree(false);             \
     }                                             \
-    tryCatch_setJmpBuf(__prev);                   \
-    tryCatch_freeException(true);                 \
-    tryCatch_setException(__lastExc);             \
+    privateTryCatch_setJmpBuf(__prev);                   \
+    privateTryCatch_freeException(true);                 \
+    privateTryCatch_setException(__lastExc);             \
 }
 
 #define MH_TC_TYPE(type) type:#type
@@ -84,12 +84,12 @@ void tryCatch_setTerminateHandler(tryCatch_TerminateHandler handler);
 #define MH_TC_TYPE_STRING(type) _Generic(type, MH_TC_TYPE(int), MH_TC_TYPE(float), MH_TC_TYPE(void*) MH_TRY_CATCH_TYPE_COMMA MH_TRY_CATCH_TYPES)
 
 #define THROW_IMPL(typeString, value) do {                        \
-    tryCatch_freeException(false);                                \
+    privateTryCatch_freeException(false);                                \
     typeof((value)) __vl = (value);                               \
-    void* __exception = tryCatch_allocateException(sizeof(__vl)); \
+    void* __exception = privateTryCatch_allocateException(sizeof(__vl)); \
     memcpy(__exception, &__vl, sizeof(__vl));                     \
-    tryCatch_setExceptionType(__exception, typeString);           \
-    tryCatch_throw(__exception);                                  \
+    privateTryCatch_setExceptionType(__exception, typeString);           \
+    privateTryCatch_throw(__exception);                                  \
 } while (0)
 
 #define THROW(value) THROW_IMPL(MH_TC_TYPE_STRING(value), value)
@@ -97,7 +97,7 @@ void tryCatch_setTerminateHandler(tryCatch_TerminateHandler handler);
 #define THROW1(type, value) THROW_IMPL(#type, (type) value)
 
 #define CATCH(type, name, block, ...)                               \
-    if (tryCatch_exceptionIsType(#type)) {                          \
+    if (privateTryCatch_exceptionIsType(#type)) {                          \
         const type name = *((const type*) tryCatch_getException()); \
         __handled = true;                                           \
         { block }                                                   \
@@ -109,8 +109,8 @@ void tryCatch_setTerminateHandler(tryCatch_TerminateHandler handler);
  * If used without active exception, the program is halted.
  */
 #define RETHROW do {                         \
-    tryCatch_setNeedsFree(false);            \
-    tryCatch_throw(tryCatch_getException()); \
+    privateTryCatch_setNeedsFree(false);            \
+    privateTryCatch_throw(tryCatch_getException()); \
 } while (0)
 
 #define CATCH_ALL(name, block, ...)             \
@@ -130,14 +130,14 @@ void tryCatch_setTerminateHandler(tryCatch_TerminateHandler handler);
  * @param buf the new @c jmp_buf to store
  * @return the previously stored one
  */
-jmp_buf* tryCatch_setJmpBuf(jmp_buf* buf);
+jmp_buf* privateTryCatch_setJmpBuf(jmp_buf* buf);
 
 /**
  * Stores the given exception pointer.
  *
  * @param exception the exception pointer to be stored
  */
-void tryCatch_setException(void* exception);
+void privateTryCatch_setException(void* exception);
 
 /**
  * Stores the type name for the given exception.
@@ -145,7 +145,7 @@ void tryCatch_setException(void* exception);
  * @param exception the user exception pointer
  * @param type the type name of the exception
  */
-void tryCatch_setExceptionType(void* exception, const char* type);
+void privateTryCatch_setExceptionType(void* exception, const char* type);
 
 /**
  * Returns whether the current exception is of the given type.
@@ -153,21 +153,21 @@ void tryCatch_setExceptionType(void* exception, const char* type);
  * @param type the type to check
  * @return whether the currently active exception is of the given type
  */
-bool tryCatch_exceptionIsType(const char* type);
+bool privateTryCatch_exceptionIsType(const char* type);
 
 /**
  * Sets whether the currently active exception needs to be freed after use.
  *
  * @param needsFree whether to free the current exception
  */
-void tryCatch_setNeedsFree(bool needsFree);
+void privateTryCatch_setNeedsFree(bool needsFree);
 
 /**
  * Returns whether the currently active exception needs to be freed after use.
  *
  * @return whether to free the currently active exception after use
  */
-bool tryCatch_getNeedsFree(void);
+bool privateTryCatch_getNeedsFree(void);
 
 /**
  * Allocates an exception able to hold at least the given amount of memory.
@@ -175,7 +175,7 @@ bool tryCatch_getNeedsFree(void);
  * @param size the requested size for the exception
  * @return the allocated exception memory
  */
-void* tryCatch_allocateException(size_t size);
+void* privateTryCatch_allocateException(size_t size);
 
 /**
  * @brief Frees the currently active exception.
@@ -184,7 +184,7 @@ void* tryCatch_allocateException(size_t size);
  *
  * @param force whether to free the memory without check
  */
-void tryCatch_freeException(bool force);
+void privateTryCatch_freeException(bool force);
 
 #ifdef __cplusplus
 # if __cplusplus >= 201103L
@@ -206,7 +206,7 @@ void tryCatch_freeException(bool force);
  *
  * @param exception the current exception pointer
  */
-MH_TC_NORETURN void tryCatch_throw(void* exception);
+MH_TC_NORETURN void privateTryCatch_throw(void* exception);
 
 #ifdef __cplusplus
 } // extern "C"
