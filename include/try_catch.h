@@ -198,6 +198,7 @@ void privateTryCatch_freeException(bool force);
 # else
 #  define MH_TC_NORETURN [[noreturn]]
 # endif
+#else
 # define MH_TC_NORETURN
 #endif
 
