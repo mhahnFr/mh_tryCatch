@@ -31,7 +31,7 @@ static tryCatch_TerminateHandler tryCatch_terminateHandler = NULL;
 /**
  * @brief Terminates the program.
  *
- * If the given message is {@c NULL}, the active exception is handled or the
+ * If the given message is @c NULL, the active exception is handled or the
  * optionally set terminate handler is called.<br>
  * Otherwise, the given message is printed.
  *
