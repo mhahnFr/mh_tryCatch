@@ -191,6 +191,12 @@ PRIVATE_MH_TC_NORETURN void privateTryCatch_throw(void* exception);
 # define PRIVATE_MH_TRY_CATCH_TYPE_COMMA
 #endif
 
+/**
+ * @brief Stringifies the given type if it listed or provided by the macro
+ * @c MH_TR_CATCH_TYPES .
+ *
+ * @param type the type to stringify
+ */
 #define PRIVATE_MH_TC_TYPE_STRING(type) _Generic(type, \
     MH_TRY_CATCH_TYPE(char),                           \
     MH_TRY_CATCH_TYPE(short),                          \
@@ -209,6 +215,12 @@ PRIVATE_MH_TC_NORETURN void privateTryCatch_throw(void* exception);
     MH_TRY_CATCH_TYPE(void*)                           \
     PRIVATE_MH_TRY_CATCH_TYPE_COMMA MH_TRY_CATCH_TYPES)
 
+/**
+ * Throws the given value and associates it with the given type string.
+ *
+ * @param typeString the type name as string
+ * @param value the value to be thrown
+ */
 #define PRIVATE_MH_TC_THROW_IMPL(typeString, value) do {               \
     privateTryCatch_freeException(false);                              \
     typeof((value)) _vl = (value);                                     \
