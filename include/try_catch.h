@@ -79,7 +79,7 @@ void tryCatch_setTerminateHandler(tryCatch_TerminateHandler handler);
  *
  * No statement after the invocation of this macro is reachable. A copy of the
  * given value is stored by the implementation and passed to the next reachable
- * catch block. The exception can be queried using `tryCatch_getException()`.
+ * catch block. The exception can be queried using @c tryCatch_getException().
  *
  * @param value the value to be thrown
  */
@@ -90,7 +90,7 @@ void tryCatch_setTerminateHandler(tryCatch_TerminateHandler handler);
  *
  * No statement after the invocation of this macro is reachable. A copy of the
  * given value is stored by the implementation and passed to the next reachable
- * catch block. The exception can be queried using `tryCatch_getException()`.
+ * catch block. The exception can be queried using @c tryCatch_getException().
  *
  * @param type the type to treat the given value as
  * @param value the value to be thrown
@@ -102,7 +102,7 @@ void tryCatch_setTerminateHandler(tryCatch_TerminateHandler handler);
  *
  * No statement after the invocation of this macro is reachable. A copy of the
  * given value is stored by the implementation and passed to the next reachable
- * catch block. The exception can be queried using `tryCatch_getException()`.
+ * catch block. The exception can be queried using @c tryCatch_getException().
  *
  * @param type the type to treat the given value as
  * @param value the value to be thrown
