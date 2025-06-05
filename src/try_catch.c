@@ -17,6 +17,7 @@
 
 #include "try_catch.h"
 
+/** The overhead of the exceptions managed by this library.      */
 #define TRY_CATCH_OVERHEAD sizeof(char*)
 
 /** Pointer to the previous jump buffer.                         */
