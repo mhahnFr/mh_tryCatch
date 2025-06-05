@@ -77,8 +77,9 @@ void tryCatch_setTerminateHandler(tryCatch_TerminateHandler handler);
 /**
  * @brief Throws the given value.
  *
- * The type of the value expression must either be listed or provided by the
- * macro @c MH_TRY_CATCH_TYPES .
+ * No statement after the invocation of this macro is reachable. A copy of the
+ * given value is stored by the implementation and passed to the next reachable
+ * catch block. The exception can be queried using `tryCatch_getException()`.
  *
  * @param value the value to be thrown
  */
@@ -87,7 +88,9 @@ void tryCatch_setTerminateHandler(tryCatch_TerminateHandler handler);
 /**
  * @brief Throws the given value, casting it to the given type.
  *
- * The given type can be any type at all.
+ * No statement after the invocation of this macro is reachable. A copy of the
+ * given value is stored by the implementation and passed to the next reachable
+ * catch block. The exception can be queried using `tryCatch_getException()`.
  *
  * @param type the type to treat the given value as
  * @param value the value to be thrown
@@ -97,7 +100,9 @@ void tryCatch_setTerminateHandler(tryCatch_TerminateHandler handler);
 /**
  * @brief Throws the given value, casting it to the given type.
  *
- * The given type can be any type at all.
+ * No statement after the invocation of this macro is reachable. A copy of the
+ * given value is stored by the implementation and passed to the next reachable
+ * catch block. The exception can be queried using `tryCatch_getException()`.
  *
  * @param type the type to treat the given value as
  * @param value the value to be thrown
@@ -115,6 +120,9 @@ void tryCatch_setTerminateHandler(tryCatch_TerminateHandler handler);
  * @brief Rethrows the currently active exception.
  *
  * If used without active exception, the program is halted.
+ *
+ * Prefer this macro since it produces less overhead than the following
+ * equivalent expression: @code THROW(*(<your exception type>*) tryCatch_getException())
  */
 #define RETHROW do {                                \
     privateTryCatch_setNeedsFree(false);            \
