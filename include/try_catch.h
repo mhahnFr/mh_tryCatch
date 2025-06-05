@@ -74,8 +74,34 @@ void tryCatch_setTerminateHandler(tryCatch_TerminateHandler handler);
 
 #define MH_TRY_CATCH_TYPE(type) type:#type
 
+/**
+ * @brief Throws the given value.
+ *
+ * The type of the value expression must either be listed or provided by the
+ * macro @c MH_TRY_CATCH_TYPES .
+ *
+ * @param value the value to be thrown
+ */
 #define THROW(value) PRIVATE_MH_TC_THROW_IMPL(PRIVATE_MH_TC_TYPE_STRING(value), value)
+
+/**
+ * @brief Throws the given value, casting it to the given type.
+ *
+ * The given type can be any type at all.
+ *
+ * @param type the type to treat the given value as
+ * @param value the value to be thrown
+ */
 #define THROW_TYPE(type, value) PRIVATE_MH_TC_THROW_IMPL(#type, (type) value)
+
+/**
+ * @brief Throws the given value, casting it to the given type.
+ *
+ * The given type can be any type at all.
+ *
+ * @param type the type to treat the given value as
+ * @param value the value to be thrown
+ */
 #define THROW1(type, value) PRIVATE_MH_TC_THROW_IMPL(#type, (type) value)
 
 #define CATCH(type, name, block, ...)                               \
