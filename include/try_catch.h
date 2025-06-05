@@ -72,29 +72,11 @@ void tryCatch_setTerminateHandler(tryCatch_TerminateHandler handler);
     privateTryCatch_setException(_lastExc);            \
 }
 
-#define MH_TC_TYPE(type) type:#type
+#define MH_TRY_CATCH_TYPE(type) type:#type
 
-#ifdef MH_TRY_CATCH_TYPES
-# define MH_TRY_CATCH_TYPE_COMMA ,
-#else
-# define MH_TRY_CATCH_TYPES
-# define MH_TRY_CATCH_TYPE_COMMA
-#endif
-
-#define MH_TC_TYPE_STRING(type) _Generic(type, MH_TC_TYPE(int), MH_TC_TYPE(float), MH_TC_TYPE(void*) MH_TRY_CATCH_TYPE_COMMA MH_TRY_CATCH_TYPES)
-
-#define THROW_IMPL(typeString, value) do {                             \
-    privateTryCatch_freeException(false);                              \
-    typeof((value)) _vl = (value);                                     \
-    void* _exception = privateTryCatch_allocateException(sizeof(_vl)); \
-    memcpy(_exception, &_vl, sizeof(_vl));                             \
-    privateTryCatch_setExceptionType(_exception, typeString);          \
-    privateTryCatch_throw(_exception);                                 \
-} while (0)
-
-#define THROW(value) THROW_IMPL(MH_TC_TYPE_STRING(value), value)
-#define THROW_TYPE(type, value) THROW_IMPL(#type, (type) value)
-#define THROW1(type, value) THROW_IMPL(#type, (type) value)
+#define THROW(value) PRIVATE_MH_TC_THROW_IMPL(PRIVATE_MH_TC_TYPE_STRING(value), value)
+#define THROW_TYPE(type, value) PRIVATE_MH_TC_THROW_IMPL(#type, (type) value)
+#define THROW1(type, value) PRIVATE_MH_TC_THROW_IMPL(#type, (type) value)
 
 #define CATCH(type, name, block, ...)                               \
     if (privateTryCatch_exceptionIsType(#type)) {                   \
@@ -181,18 +163,18 @@ void privateTryCatch_freeException(bool force);
 
 #ifdef __cplusplus
 # if __cplusplus >= 201103L
-#  define MH_TC_NORETURN [[noreturn]]
+#  define PRIVATE_MH_TC_NORETURN [[noreturn]]
 # else
-#  define MH_TC_NORETURN
+#  define PRIVATE_MH_TC_NORETURN
 # endif
 #elif defined(__STDC_VERSION__)
 # if __STDC_VERSION__ < 202311L
-#  define MH_TC_NORETURN _Noreturn
+#  define PRIVATE_MH_TC_NORETURN _Noreturn
 # else
-#  define MH_TC_NORETURN [[noreturn]]
+#  define PRIVATE_MH_TC_NORETURN [[noreturn]]
 # endif
 #else
-# define MH_TC_NORETURN
+# define PRIVATE_MH_TC_NORETURN
 #endif
 
 /**
@@ -200,7 +182,29 @@ void privateTryCatch_freeException(bool force);
  *
  * @param exception the current exception pointer
  */
-MH_TC_NORETURN void privateTryCatch_throw(void* exception);
+PRIVATE_MH_TC_NORETURN void privateTryCatch_throw(void* exception);
+
+#ifdef MH_TRY_CATCH_TYPES
+# define PRIVATE_MH_TRY_CATCH_TYPE_COMMA ,
+#else
+# define MH_TRY_CATCH_TYPES
+# define PRIVATE_MH_TRY_CATCH_TYPE_COMMA
+#endif
+
+#define PRIVATE_MH_TC_TYPE_STRING(type) _Generic(type, \
+    MH_TRY_CATCH_TYPE(int), \
+    MH_TRY_CATCH_TYPE(float), \
+    MH_TRY_CATCH_TYPE(void*) PRIVATE_MH_TRY_CATCH_TYPE_COMMA\
+    MH_TRY_CATCH_TYPES)
+
+#define PRIVATE_MH_TC_THROW_IMPL(typeString, value) do {                             \
+    privateTryCatch_freeException(false);                              \
+    typeof((value)) _vl = (value);                                     \
+    void* _exception = privateTryCatch_allocateException(sizeof(_vl)); \
+    memcpy(_exception, &_vl, sizeof(_vl));                             \
+    privateTryCatch_setExceptionType(_exception, typeString);          \
+    privateTryCatch_throw(_exception);                                 \
+} while (0)
 
 #ifdef __cplusplus
 } // extern "C"

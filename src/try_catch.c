@@ -37,7 +37,7 @@ static tryCatch_TerminateHandler privateTryCatch_terminateHandler = NULL;
  *
  * @param message the internal error message
  */
-MH_TC_NORETURN static inline void privateTryCatch_terminate(const char* message) {
+PRIVATE_MH_TC_NORETURN static inline void privateTryCatch_terminate(const char* message) {
     if (message == NULL) {
         if (privateTryCatch_terminateHandler == NULL) {
             fprintf(stderr, "mhahnFr's try_catch: Terminating due to uncaught exception of type %s!\n",
@@ -99,7 +99,7 @@ void privateTryCatch_freeException(const bool force) {
     }
 }
 
-MH_TC_NORETURN void privateTryCatch_throw(void* exception) {
+PRIVATE_MH_TC_NORETURN void privateTryCatch_throw(void* exception) {
     if (exception == NULL) {
         privateTryCatch_terminate("thrown exception is NULL.\n"
             "                     This is most likely caused by using RETHROW without an active exception");
