@@ -192,8 +192,20 @@ PRIVATE_MH_TC_NORETURN void privateTryCatch_throw(void* exception);
 #endif
 
 #define PRIVATE_MH_TC_TYPE_STRING(type) _Generic(type, \
+    MH_TRY_CATCH_TYPE(char),                           \
+    MH_TRY_CATCH_TYPE(short),                          \
     MH_TRY_CATCH_TYPE(int),                            \
+    MH_TRY_CATCH_TYPE(long),                           \
+    MH_TRY_CATCH_TYPE(long long),                      \
+    MH_TRY_CATCH_TYPE(signed char),                    \
+    MH_TRY_CATCH_TYPE(unsigned char),                  \
+    MH_TRY_CATCH_TYPE(unsigned short),                 \
+    MH_TRY_CATCH_TYPE(unsigned int),                   \
+    MH_TRY_CATCH_TYPE(unsigned long),                  \
+    MH_TRY_CATCH_TYPE(unsigned long long),             \
     MH_TRY_CATCH_TYPE(float),                          \
+    MH_TRY_CATCH_TYPE(double),                         \
+    MH_TRY_CATCH_TYPE(long double),                    \
     MH_TRY_CATCH_TYPE(void*)                           \
     PRIVATE_MH_TRY_CATCH_TYPE_COMMA MH_TRY_CATCH_TYPES)
 
