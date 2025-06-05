@@ -122,7 +122,8 @@ void tryCatch_setTerminateHandler(tryCatch_TerminateHandler handler);
  * If used without active exception, the program is halted.
  *
  * For efficiency reasons, prefer using this macro instead of the following
- * equivalent expression: `THROW(*(<your exception type>*) tryCatch_getException())`
+ * equivalent expression:
+ * @code THROW(*(<your exception type>*) tryCatch_getException())
  */
 #define RETHROW do {                                \
     privateTryCatch_setNeedsFree(false);            \
