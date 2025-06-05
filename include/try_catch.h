@@ -32,8 +32,8 @@ extern "C" {
  *
  * The memory behind the exception is maintained by mh_tryCatch.
  *
- * @return the pointer to the currently active exception or @c NULL if no exception is
- * currently active
+ * @return the pointer to the currently active exception or @c NULL if no
+ * exception is currently active
  */
 void* tryCatch_getException(void);
 
@@ -44,8 +44,8 @@ void* tryCatch_getException(void);
 typedef void (*tryCatch_TerminateHandler)(void);
 
 /**
- * @brief Sets a handler that is called when an uncaught exception will halt the
- * program.
+ * @brief Sets a handler that is called when an uncaught exception will halt
+ * the program.
  *
  * Pass @c NULL to unregister the handler.
  *
@@ -121,8 +121,8 @@ void tryCatch_setTerminateHandler(tryCatch_TerminateHandler handler);
  *
  * If used without active exception, the program is halted.
  *
- * Prefer this macro since it produces less overhead than the following
- * equivalent expression: @code THROW(*(<your exception type>*) tryCatch_getException())
+ * For efficiency reasons, prefer using this macro instead of the following
+ * equivalent expression: `THROW(*(<your exception type>*) tryCatch_getException())`
  */
 #define RETHROW do {                                \
     privateTryCatch_setNeedsFree(false);            \
