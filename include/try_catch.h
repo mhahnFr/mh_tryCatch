@@ -138,13 +138,6 @@ void tryCatch_setTerminateHandler(tryCatch_TerminateHandler handler);
  */
 #define THROW1(type, value) PRIVATE_MH_TC_THROW_IMPL(#type, (type) value)
 
-#define CATCH(type, name, block, ...)                               \
-    if (privateTryCatch_exceptionIsType(#type)) {                   \
-        const type name = *((const type*) tryCatch_getException()); \
-        _handled = true;                                            \
-        { block }                                                   \
-    } else { __VA_ARGS__ if (!_handled) RETHROW; }
-
 /**
  * @brief Rethrows the currently active exception.
  *
@@ -159,6 +152,52 @@ void tryCatch_setTerminateHandler(tryCatch_TerminateHandler handler);
     privateTryCatch_throw(tryCatch_getException()); \
 } while (0)
 
+/**
+ * @brief Using this macro, certain exception types can be caught, while other
+ * exceptions are passed to the next matching catch block.
+ *
+ * This next catch block can be chained with this catch block, or it can be
+ * another @c TRY macro invocation.
+ * @code
+ * TRY({
+ *     // Something that can throw...
+ * }, CATCH(int, code, {
+ *     printf("Caught exception code: %d\n", code);
+ * }, CATCH(float, number, {
+ *     printf("Caught float: %f\n", number);
+ * }
+ * // Other CATCH blocks can follow here
+ * )))
+ * @endcode
+ *
+ * @param type the type to be caught by this catch block
+ * @param name the name of the variable
+ * @param block the exception handling code block
+ */
+#define CATCH(type, name, block, ...)                               \
+    if (privateTryCatch_exceptionIsType(#type)) {                   \
+        const type name = *((const type*) tryCatch_getException()); \
+        _handled = true;                                            \
+        { block }                                                   \
+    } else { __VA_ARGS__ if (!_handled) RETHROW; }
+
+/**
+ * @brief Using this macro, any exception type is caught.
+ *
+ * It is most useful chained after other @c CATCH blocks: @code
+ * TRY({
+ *     // Something that can throw...
+ * }, CATCH(int, code, {
+ *     // Handle a thrown integer...
+ * }, CATCH_ALL(exceptionPtr, {
+ *     printf("Caught any other exception: %p\n", exceptionPtr);
+ * })))
+ * @endcode
+ * However, it can be used wherever the regular @c CATCH macro can be used.
+ *
+ * @param name the name of the variable
+ * @param block the exception handling block
+ */
 #define CATCH_ALL(name, block, ...)             \
     _handled = true;                            \
     const void* name = tryCatch_getException(); \
