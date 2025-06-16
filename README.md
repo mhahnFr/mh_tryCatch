@@ -103,10 +103,42 @@ Basic **example:**
 int main(void) {
     printf("Before\n");
 
-    THROW("Something descriptive");
+    THROW(1);
 
     // Never reached
     printf("After\n");
+}
+```
+
+In order to throw any type, `THROW_TYPE` (or `THROW1` as alias) can be used as follows:
+```c
+// main.c
+
+#include <try_catch.h>
+
+#include <stdio.h> // For printf(...)
+
+int main(void) {
+    printf("Before\n");
+    
+    THROW_TYPE(char*, "Descriptive message");
+    // Equivalent:
+    THROW1(char*, "Descriptive message");
+    
+    printf("Never reached");
+}
+```
+
+More implicitly supported types can be added by defining the macro `MH_TRY_CATCH_TYPES` before including
+the header [`try_catch.h`][3] as follows:
+```c
+// main.c
+
+#define MH_TRY_CATCH_TYPES MH_TRY_CATCH_TYPE(char*), MH_TRY_CATCH_TYPE(volatile int)
+#include <try_catch.h>
+
+int main(void) {
+    THROW("Descriptive message"); // Now possible
 }
 ```
 
@@ -127,7 +159,7 @@ int main(void) {
 
     TRY({
         printf("Within try\n");
-        THROW("Descriptive error message");
+        THROW1(char*, "Descriptive error message");
     }, {
         printf("Within the catch block, e. g. caught an exception\n");
     })
@@ -153,7 +185,7 @@ int main(void) {
         TRY({
             printf("Within inner try\n");
             
-            THROW("Reaches the inner catch block");
+            THROW1(char*, "Reaches the inner catch block");
         }, {
             printf("Caught exception from inner try block\n");
         })
@@ -175,7 +207,7 @@ They work across functions, too:
 
 void bar2(void) {
     printf("bar2\n");
-    THROW("From bar2");
+    THROW1(char*, "From bar2");
 }
 
 void foo2(void) {
