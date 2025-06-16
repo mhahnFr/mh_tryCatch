@@ -318,7 +318,7 @@ int main(void) {
 ```
 Output:
 ```
-Caught float: 1.0000
+Caught float: 1.000000
 ```
 
 To prevent exceptions from escaping a [`TRY`][5] block invocation, `CATCH_ALL` can be used:
@@ -333,22 +333,22 @@ void maybeThrower(void) {
     TRY({
         THROW1(char*, "Descriptive message");
     }, CATCH_ALL(exceptionPtr, {
-        prtinf("Caught an exception: %p\n", exceptionPtr);
-    })
+        printf("Caught an exception: %p\n", exceptionPtr);
+    }))
 }
 
-void main(void) {
+int main(void) {
     TRY({
         maybeThrower();
     }, CATCH(char*, message, {
         printf("Caught message: %s\n", message);
-    })
+    }))
 }
 ```
 
 Output:
 ```
-Caught an exception: 0xdeadbeef
+Caught an exception: 0x6000005ec038
 ```
 
 It can be used wherever the regular [`CATCH`][4] macro is appropriate.
