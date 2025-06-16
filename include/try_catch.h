@@ -53,6 +53,24 @@ typedef void (*tryCatch_TerminateHandler)(void);
  */
 void tryCatch_setTerminateHandler(tryCatch_TerminateHandler handler);
 
+/**
+ * @brief Tries to execute the given block of code.
+ *
+ * If an exception has been thrown within the try code block, the given catch
+ * code block is invoked. Illustration: @code
+ * TRY({
+ *     // Do something that can throw, e.g. calls THROW(...)
+ *     THROW(1);
+ * }, {
+ *     // Handle the thrown exception
+ * })
+ * @endcode
+ * A more sophisticated way to handle exceptions is the @c CATCH and the
+ * @c CATCH_ALL macro, respectively.
+ *
+ * @param block the block of code whose exceptions can be caught in the catch block
+ * @param catchBlock the block to handle the caught exception
+ */
 #define TRY(block, catchBlock) {                       \
     jmp_buf _env;                                      \
     jmp_buf* _prev = privateTryCatch_setJmpBuf(&_env); \
@@ -72,6 +90,17 @@ void tryCatch_setTerminateHandler(tryCatch_TerminateHandler handler);
     privateTryCatch_setException(_lastExc);            \
 }
 
+/**
+ * @brief When defining the macro @c MH_TRY_CATCH_TYPES, use this macro to
+ * enumerate your desired types.
+ *
+ * The types enumerated using this helper macro can be thrown without
+ * explicitly mentioning the type. Use it like the following example: @code
+ * #define MH_TRY_CATCH_TYPES MH_TRY_CATCH_TYPE(struct foo), MH_TRY_CATCH_TYPE(struct bar), ...
+ * @endcode
+ *
+ * @param type the type to be available implicitly in @c THROW expressions
+ */
 #define MH_TRY_CATCH_TYPE(type) type:#type
 
 /**
@@ -122,8 +151,8 @@ void tryCatch_setTerminateHandler(tryCatch_TerminateHandler handler);
  * If used without active exception, the program is halted.
  *
  * For efficiency reasons, prefer using this macro instead of the following
- * equivalent expression:
- * @code THROW(*(<your exception type>*) tryCatch_getException())
+ * equivalent expression: @code
+ * THROW(*(<your exception type>*) tryCatch_getException()) @endcode
  */
 #define RETHROW do {                                \
     privateTryCatch_setNeedsFree(false);            \
