@@ -258,12 +258,12 @@ Instead of a code block called after an exception has been caught the macro `CAT
 
 #include <stdio.h> // For printf(...)
 
-void thrower(void) { THROW("Descriptive message"); }
+void thrower(void) { THROW1(char*, "Descriptive message"); }
 
 int main(void) {
     TRY({
         thrower();
-    }, CATCH(const char*, message, {
+    }, CATCH(char*, message, {
         printf("Caught an exception: %s\n", message);
     }))
 }
@@ -271,21 +271,87 @@ int main(void) {
 
 It takes the desired type and the name of the variable as well as the actual catch block to be invoked.
 
-> [!NOTE]
-> Exceptions are caught by reference:
-> ```c
-> // main.c
-> 
-> #include <try_catch.h>
-> 
-> int main(void) {
->     TRY({
->         THROW(1); // Throwing an int
->     }, CATCH(int*, number, {
->         // Catching an int pointer
->     }))
-> }
-> ```
+Multiple catch blocks can be chained:
+```c
+// main.c
+
+#include <try_catch.h>
+
+#include <stdio.h> // For prtinf(...)
+
+void thrower(void) { THROW1(char*, "Descriptive message"); }
+
+int main(void) {
+    TRY({
+        thrower();
+    }, CATCH(int, code, {
+        printf("Caught exception code: %d\n", code);
+    }, CATCH(char*, message, {
+        printf("Caught message: %s\n", message);
+    })))
+}
+```
+
+If the thrown exception does not match a catch block, it is passed to the next [`TRY`][5] block:
+```c
+// main.c
+
+#include <try_catch.h>
+
+#include <stdio.h> // For printf(...)
+
+void first(void) {
+    TRY({
+        THROW(1.0f);
+    }, CATCH(char*, message, {
+        printf("Caught message: %s\n", message);
+    }))
+}
+
+int main(void) {
+    TRY({
+        first();
+    }, CATCH(float, f, {
+        printf("Caught float: %f\n", f);
+    }))
+}
+```
+Output:
+```
+Caught float: 1.0000
+```
+
+To prevent exceptions from escaping a [`TRY`][5] block invocation, `CATCH_ALL` can be used:
+```c
+// main.c
+
+#include <try_catch.h>
+
+#include <stdio.h> // For printf(...)
+
+void maybeThrower(void) {
+    TRY({
+        THROW1(char*, "Descriptive message");
+    }, CATCH_ALL(exceptionPtr, {
+        prtinf("Caught an exception: %p\n", exceptionPtr);
+    })
+}
+
+void main(void) {
+    TRY({
+        maybeThrower();
+    }, CATCH(char*, message, {
+        printf("Caught message: %s\n", message);
+    })
+}
+```
+
+Output:
+```
+Caught an exception: 0xdeadbeef
+```
+
+It can be used wherever the regular [`CATCH`][4] macro is appropriate.
 
 Throwing an exception from within the catch block is also possible:
 ```c
@@ -297,18 +363,18 @@ Throwing an exception from within the catch block is also possible:
 
 void sampleFunc(void) {
     TRY({
-        THROW("A message");
-    }, CATCH(const char*, message, {
+        THROW1(char*, "A message");
+    }, CATCH(char*, message, {
         printf("Caught exception: %s\n", message);
         
-        THROW("But the caller needs to notice, too.");
+        THROW1(char*, "But the caller needs to notice, too.");
     }))
 }
 
 int main(void) {
     TRY({
         sampleFunc();
-    }, CATCH(const char*, message, {
+    }, CATCH(char*, message, {
         printf("Caught exception: %s\n", message);
     }))
 }
@@ -325,8 +391,8 @@ Instead of having to throw a new exception, the current exception can be rethrow
 
 void sampleFunc(void) {
     TRY({
-        THROW("Another message");
-    }, CATCH(const char*, message, {
+        THROW1(char*, "Another message");
+    }, CATCH(char*, message, {
         printf("Caught exception: %s\n", message);
         
         RETHROW;
@@ -336,13 +402,14 @@ void sampleFunc(void) {
 int main(void) {
     TRY({
         sampleFunc();
-    }, CATCH(const char*, message, {
+    }, CATCH(char*, message, {
         // Prints the same message as sampleFunc above:
         printf("Caught exception in main: %s\n", message);
     }))
 }
 ```
 
+### Introduced functions
 #### `void* tryCatch_getException(void)`
 Using the introduced function `tryCatch_getException` the pointer to the current exception can be obtained. Outside a
 catch block it is the `NULL` pointer.  
@@ -354,7 +421,7 @@ This way, the thrown exception can be accessed without the usage of the [`CATCH`
 
 #include <stdio.h> // For printf(...)
 
-void thrower(void) { THROW("The error message"); }
+void thrower(void) { THROW1(char*, "The error message"); }
 
 int main(void) {
     TRY({
@@ -386,13 +453,39 @@ void someFunc(void) {
 int main(void) {
     TRY({
         someFunc();
-        THROW("A descriptive message");
-    }, CATCH(const char*, message, {
+        THROW1(char*, "A descriptive message");
+    }, CATCH(char*, message, {
         printf("Caught exception: %s\n", message);
         
         someFunc(); // No access to the message variable above.
     }))
 } 
+```
+
+#### `void tryCatch_setTerminateHandler(tryCatch_TerminateHandler handler)`
+Using this function, a terminate handler function can be installed. That handler is called when an uncaught exception
+will halt the program.  
+By registering `NULL`, a previously registered handler can be deregistered.
+
+Illustration:
+```c
+// main.c
+
+#include <try_catch.h>
+
+#include <stdio.h> // For printf(...)
+
+void terminateHandler(void) {
+    printf("Terminating with uncaught exception: %p\n", tryCatch_getException());
+    
+    // No need to terminate the program here, will be done by my_tryCatch.
+}
+
+int main(void) {
+    tryCatch_setTerminateHandler(terminateHandler);
+
+    THROW(1);
+}
 ```
 
 ## Compatibility
