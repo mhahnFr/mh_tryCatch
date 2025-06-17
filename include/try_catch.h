@@ -122,9 +122,9 @@ void tryCatch_setTerminateHandler(tryCatch_TerminateHandler handler);
  * catch block. The exception can be queried using @c tryCatch_getException().
  *
  * @param type the type to treat the given value as
- * @param value the value to be thrown
+ * @param ... the value to be thrown
  */
-#define THROW_TYPE(type, value) PRIVATE_MH_TC_THROW_IMPL(#type, (type) value)
+#define THROW_TYPE(type, ...) PRIVATE_MH_TC_THROW_IMPL(#type, ((type) __VA_ARGS__))
 
 /**
  * @brief Throws the given value, casting it to the given type.
@@ -134,9 +134,9 @@ void tryCatch_setTerminateHandler(tryCatch_TerminateHandler handler);
  * catch block. The exception can be queried using @c tryCatch_getException().
  *
  * @param type the type to treat the given value as
- * @param value the value to be thrown
+ * @param ... the value to be thrown
  */
-#define THROW1(type, value) PRIVATE_MH_TC_THROW_IMPL(#type, (type) value)
+#define THROW1(type, ...) PRIVATE_MH_TC_THROW_IMPL(#type, ((type) __VA_ARGS__))
 
 /**
  * @brief Rethrows the currently active exception.
