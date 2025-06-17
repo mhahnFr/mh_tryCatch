@@ -134,7 +134,7 @@ the header [`try_catch.h`][3] as follows:
 ```c
 // main.c
 
-#define MH_TRY_CATCH_TYPES MH_TRY_CATCH_TYPE(char*), MH_TRY_CATCH_TYPE(volatile int)
+#define MH_TRY_CATCH_TYPES MH_TRY_CATCH_TYPE(char*), MH_TRY_CATCH_TYPE(int*)
 #include <try_catch.h>
 
 int main(void) {
@@ -161,7 +161,7 @@ int main(void) {
         printf("Within try\n");
         THROW1(char*, "Descriptive error message");
     }, {
-        printf("Within the catch block, e. g. caught an exception\n");
+        printf("Within the catch block, e.g. caught an exception\n");
     })
 
     printf("After\n");
@@ -220,7 +220,7 @@ void foo2(void) {
 
 void bar(void) {
     foo2();
-    THROW("Message of bar");
+    THROW1(char*, "Message of bar");
 }
 
 void foo(void) {
@@ -277,7 +277,7 @@ Multiple catch blocks can be chained:
 
 #include <try_catch.h>
 
-#include <stdio.h> // For prtinf(...)
+#include <stdio.h> // For printf(...)
 
 void thrower(void) { THROW1(char*, "Descriptive message"); }
 
@@ -467,7 +467,7 @@ Using this function, a terminate handler function can be installed. That handler
 will halt the program.  
 By registering `NULL`, a previously registered handler can be deregistered.
 
-Illustration:
+Basic **example**:
 ```c
 // main.c
 
