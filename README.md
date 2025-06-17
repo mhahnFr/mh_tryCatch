@@ -21,10 +21,6 @@ The following example illustrates how to use the `try` & `catch` system:
 
 #include <stdio.h> // For printf(...)
 
-void thrower(void) {
-    THROW("Message");
-}
-
 // Example structure used below
 struct exception {
     int code;
@@ -32,44 +28,49 @@ struct exception {
 };
 
 void throwStruct(void) {
-    THROW(((struct exception) { 42, "Descriptive message" }));
+    THROW1(struct exception, { 1, "Descriptive message" });
 }
+
+void thrower(void) { THROW1(char*, "Message"); }
 
 void structHandling(void) {
     TRY({
         throwStruct();
-    }, CATCH(struct exception*, e, {
-        printf("Caught exception: %d - %s\n", e->code, e->message);
-    }))
-}    
+        thrower();
+    }, CATCH(struct exception, e, {
+        printf("Caught exception: %d - %s\n", e.code, e.message);
+    }, CATCH(char*, message, {
+        printf("Caught message: %s\n", message);
+    })))
+}
 
 void foo(void) {
     TRY({
         thrower();
     }, {
-        // No need for CATCH, the exception being thrown is also available 
+        // No need for CATCH, the exception being thrown is also available
         // using tryCatch_getException()
         printf("Caught something: %p\n", tryCatch_getException());
         RETHROW;
     })
 }
 
-void bar(void) {
-    printf("Will not be printed\n");
-}
+void bar(void) { printf("Will not be printed"); }
 
 int main(void) {
     printf("Before the handling\n");
-    
+
     TRY({
         foo();
         bar();
-    }, CATCH(const char*, message, {
-        printf("Caught an exception: %s\n", message);
-    }))
-    
+    }, CATCH(int, code, {
+        printf("Caught code: %d\n", code);
+    }, CATCH(char*, message, {
+        printf("Caught message: %s\n", message);
+    })))
+
     structHandling();
-    
+
     printf("After the handling\n");
 }
 ```
@@ -77,9 +78,9 @@ int main(void) {
 This example creates the following output:
 ```
 Before the handling
-Caught something: 0x600002150040
-Caught an exception: Message
-Caught exception: 42 - Descriptive message
+Caught something: 0x600003d4c038
+Caught message: Message
+Caught exception: 1 - Descriptive message
 After the handling
 ```
 
