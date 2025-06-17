@@ -71,7 +71,7 @@ void tryCatch_setTerminateHandler(const tryCatch_TerminateHandler handler) {
 }
 
 void privateTryCatch_setException(void* exception) {
-    privateTryCatch_lastException = (char*) exception - TRY_CATCH_OVERHEAD;
+    privateTryCatch_lastException = exception == NULL ? NULL : (char*) exception - TRY_CATCH_OVERHEAD;
 }
 
 void privateTryCatch_setNeedsFree(const bool needsFree) {
