@@ -204,6 +204,22 @@ void tryCatch_setTerminateHandler(tryCatch_TerminateHandler handler);
     { block }                                   \
     if (!_handled) { __VA_ARGS__ }
 
+#define TC_RETURN \
+    PRIVATE_MH_TC_BEFORE_JUMP; \
+    return
+
+#define TC_BREAK \
+    PRIVATE_MH_TC_BEFORE_JUMP;\
+    break
+
+#define TC_CONTINUE \
+    PRIVATE_MH_TC_BEFORE_JUMP; \
+    continue
+
+#define TC_GOTO \
+    PRIVATE_MH_TC_BEFORE_JUMP; \
+    goto
+
 
 // I M P L E M E N T A T I O N - S P E C I F I C   F U N C T I O N S
 //
@@ -331,6 +347,15 @@ PRIVATE_MH_TC_NORETURN void privateTryCatch_throw(void* exception);
     memcpy(_exception, &_vl, sizeof(_vl));                             \
     privateTryCatch_setExceptionType(_exception, typeString);          \
     privateTryCatch_throw(_exception);                                 \
+} while (0)
+
+#define PRIVATE_MH_TC_BEFORE_JUMP do {       \
+    if (_result != 0) {                      \
+        privateTryCatch_setNeedsFree(false); \
+    }                                        \
+    privateTryCatch_setJmpBuf(_prev);        \
+    privateTryCatch_freeException(true);     \
+    privateTryCatch_setException(_lastExc);  \
 } while (0)
 
 #ifdef __cplusplus
