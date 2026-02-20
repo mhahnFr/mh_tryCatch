@@ -502,7 +502,7 @@ standard C23.
 ## Final notes
 This project is marked with CC0 1.0 Universal.
 
-Written in 2025 by [mhahnFr][1]
+Written in 2025 - 2026 by [mhahnFr][1]
 
 [1]: https://github.com/mhahnFr
 [2]: /src/try_catch.c

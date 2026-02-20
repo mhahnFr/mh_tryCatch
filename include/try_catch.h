@@ -1,7 +1,7 @@
 /*
  * mh_tryCatch - Try Catch for C
  *
- * Written in 2025 by mhahnFr
+ * Written in 2025 - 2026 by mhahnFr
  *
  * This file is part of mh_tryCatch.
  *
@@ -13,8 +13,8 @@
  * see the file LICENSE. If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
  */
 
-#ifndef __mh_try_catch_h
-#define __mh_try_catch_h
+#ifndef _mh_try_catch_h
+#define _mh_try_catch_h
 
 #include <setjmp.h>
 #include <stdbool.h>
@@ -337,4 +337,4 @@ PRIVATE_MH_TC_NORETURN void privateTryCatch_throw(void* exception);
 } // extern "C"
 #endif
 
-#endif /* __mh_try_catch_h */
+#endif /* _mh_try_catch_h */
