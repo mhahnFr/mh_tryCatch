@@ -204,18 +204,88 @@ void tryCatch_setTerminateHandler(tryCatch_TerminateHandler handler);
     { block }                                   \
     if (!_handled) { __VA_ARGS__ }
 
+/**
+ * @brief This macro allows to exit a @c try or @c catch block properly by
+ * using a @c return statement.
+ *
+ * Simply replace the keyword @c return by this macro, example: @code
+ * TRY({
+ *     // Something that can throw...
+ *     TC_RETURN true;
+ * }, CATCH_ALL(exceptionPtr, {
+ *     // Something has thrown...
+ *     TC_RETURN false;
+ * })
+ * @endcode
+ */
 #define TC_RETURN \
     PRIVATE_MH_TC_BEFORE_JUMP; \
     return
 
+/**
+ * @brief This macro allows to exit a @c try or @c catch block properly by
+ * using a @c break statement.
+ *
+ * Simply replace the keyword @c break by this macro, example: @code
+ * for (unsigned i = 0; i < 10; ++i) {
+ *     TRY({
+ *         // Do something meaningful that might throw...
+ *         if (i % 5 == 0) {
+ *             TC_BREAK;
+ *         }
+ *     }, CATCH_ALL(exceptionPtr, {
+ *         // Something has thrown...
+ *         TC_BREAK;
+ *     })
+ * }
+ * @endcode
+ */
 #define TC_BREAK \
     PRIVATE_MH_TC_BEFORE_JUMP;\
     break
 
+/**
+ * @brief This macro allows to exit a @c try or @c catch block properly by
+ * using a @c continue statement.
+ *
+ * Simply replace the keyword @c continue by this macro, example: @code
+ * for (unsigned i = 0; i < 10; ++i) {
+ *     TRY({
+ *         // Do something meaningful that might throw...
+ *         if (i % 2 == 0) {
+ *             TC_CONTINUE;
+ *         }
+ *     }, CATCH(int, code, {
+ *         if (code == i) {
+ *             TC_CONTINUE;
+ *         }
+ *     })
+ * }
+ * @endcode
+ */
 #define TC_CONTINUE \
     PRIVATE_MH_TC_BEFORE_JUMP; \
     continue
 
+/**
+ * @brief This macro allows to exit a @c try or @c catch block properly by
+ * using a @c goto statement.
+ *
+ * Simply replace the keyword @c goto by this macro, example: @code
+ * TRY({
+ *     // Do something that might throw...
+ *     TC_GOTO success;
+ * }, CATCH_ALL(exceptionPtr, {
+ *     TC_GOTO fail;
+ * })
+ * success:
+ *     return true;
+ * fail:
+ *     return false;
+ * @endcode
+ * @warning Never jump into a @c try or @c catch block - this would skip the
+ * initialization of the exception system. Only jump out of these blocks.
+ */
 #define TC_GOTO \
     PRIVATE_MH_TC_BEFORE_JUMP; \
     goto
@@ -349,6 +419,10 @@ PRIVATE_MH_TC_NORETURN void privateTryCatch_throw(void* exception);
     privateTryCatch_throw(_exception);                                 \
 } while (0)
 
+/**
+ * Performs internal exception handling necessary before leaving the scope of a
+ * @c try or @c catch block.
+ */
 #define PRIVATE_MH_TC_BEFORE_JUMP do {       \
     if (_result != 0) {                      \
         privateTryCatch_setNeedsFree(false); \
