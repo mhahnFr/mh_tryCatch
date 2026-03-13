@@ -65,6 +65,7 @@ int main(void) {
         bar();
     }, CATCH(int, code, {
         printf("Caught code: %d\n", code);
+        TC_RETURN code;
     }, CATCH(char*, message, {
         printf("Caught message: %s\n", message);
     })))
@@ -87,7 +88,9 @@ After the handling
 The detailed description follows below.
 
 ### Introduced macros
-The header introduces the macros [`TRY`][5], [`CATCH`][4], [`THROW`][7] and [`RETHROW`][6].
+The header introduces the macros [`TRY`][5], [`CATCH`][4], [`THROW`][7] and [`RETHROW`][6].  
+Additionally, the four control flow jump statements are overwritten by the macros [`TC_RETURN`][9], [`TC_BREAK`][a],
+[`TC_CONTINUE`][b] and [`TC_GOTO`][c].
 
 #### `THROW`
 The macro `THROW` takes one argument: the exception you wish to throw. It is copied.  
@@ -410,6 +413,165 @@ int main(void) {
 }
 ```
 
+#### Control flow jump macros
+##### `TC_RETURN`
+Use this macro whenever you want to use the keyword `return` within a [`TRY`][5] or a [`CATCH`][4] block.  
+Basic **example:**
+```c
+// main.c
+
+#include <try_catch.h>
+
+void throwingFunction(void) {
+    THROW1(int, 1);
+}
+
+bool mayFailTheOldWay(void) {
+    TRY({
+         throwingFunction();
+    }, CATCH_ALL(exceptionPtr, {
+        TC_RETURN false;
+    }))
+    return true;
+}
+
+int main(void) {
+    if (!mayFailTheOldWay()) {
+        return EXIT_FAILURE;
+    }
+    return EXIT_SUCCESS;
+}
+```
+
+##### `TC_BREAK`
+Use this macro whenever you want to use the keyword `break` within a [`TRY`][5] or a [`CATCH`][4] block.  
+Basic **example:**
+```c
+// main.c
+
+#include <try_catch.h>
+
+#include <stdio.h> // For printf(...)
+
+void handleNumber(unsigned i) {
+    if (i == 8) {
+        THROW1(int, i);
+    }
+    printf("Handling %u\n", i);
+}
+
+int main(void) {
+    for (unsigned i = 0; i < 10; ++i) {
+        TRY({
+            handleNumber(i);
+        }, CATCH_ALL(exceptionPtr, {
+            TC_BREAK;
+        }))
+    }
+    printf("Ended handling\n");
+}
+```
+
+Output:
+```
+Handling 0
+Handling 1
+Handling 2
+Handling 3
+Handling 4
+Handling 5
+Handling 6
+Handling 7
+Ended handling
+```
+
+##### `TC_CONTINUE`
+Use this macro whenever you want to use the keyword `continue` within a [`TRY`][5] or a [`CATCH`][4] block.  
+Basic **example:**
+```c
+// main.c
+
+#include <try_catch.h>
+
+#include <stdio.h> // For printf(...)
+
+void handleNumber(unsigned i) {
+    if (i == 8) {
+        THROW1(int, i);
+    }
+    printf("Handling %u\n", i);
+}
+
+int main(void) {
+    for (unsigned i = 0; i < 10; ++i) {
+        TRY({
+            if (i % 2 == 0) {
+                TC_CONTINUE;
+            }
+            handleNumber(i);
+        }, CATCH(int, code, {
+            if (code == i) {
+                TC_CONTINUE;
+            }
+            RETHROW;
+        }))
+    }
+    printf("After the handling\n");
+}
+```
+
+Output:
+```
+Handling 1
+Handling 3
+Handling 5
+Handling 7
+Handling 9
+After the handling
+```
+
+##### `TC_GOTO`
+Use this macro whenever you want to use the keyword `goto` within a [`TRY`][5] or a [`CATCH`][4] block.  
+Basic **example:**
+```c
+// main.c
+
+#include <try_catch.h>
+
+#include <stdio.h> // For printf(...)
+
+int getNumber(void) {
+    return 1;
+}
+
+int main(void) {
+    TRY({
+        int i = getNumber();
+        if (i == 1) {
+            // When using goto inside the same block, do not use the macro:
+            goto numberOne;
+        }
+        // When using goto to jump out of the try block, use the macro overwrite:
+        TC_GOTO outLabel;
+
+numberOne:
+        printf("Number one label\n");
+    }, CATCH_ALL(exceptionPtr, {
+        // When using goto to jump out of the catch block, use the macro overwrite:
+        TC_GOTO outLabel;
+    }))
+
+outLabel:
+    printf("Out label\n");
+    
+    // N E V E R  jump into try or catch blocks:
+    // goto numberOne; // NEVER do this.
+}
+```
+
+> [!WARNING]
+> Never jump into a [`TRY`][5] or a [`CATCH`][4] block. Only use `goto` statements to jump out of these blocks.
+
 ### Introduced functions
 #### `void* tryCatch_getException(void)`
 Using the introduced function `tryCatch_getException` the pointer to the current exception can be obtained. Outside a
@@ -512,3 +674,7 @@ Written in 2025 - 2026 by [mhahnFr][1]
 [6]: #rethrow
 [7]: #throw
 [8]: https://github.com/mhahnFr/mh_tryCatch
+[9]: #tc_return
+[a]: #tc_break
+[b]: #tc_continue
+[c]: #tc_goto
