@@ -215,7 +215,7 @@ void tryCatch_setTerminateHandler(tryCatch_TerminateHandler handler);
  * }, CATCH_ALL(exceptionPtr, {
  *     // Something has thrown...
  *     TC_RETURN false;
- * })
+ * }))
  * @endcode
  */
 #define TC_RETURN \
@@ -236,7 +236,7 @@ void tryCatch_setTerminateHandler(tryCatch_TerminateHandler handler);
  *     }, CATCH_ALL(exceptionPtr, {
  *         // Something has thrown...
  *         TC_BREAK;
- *     })
+ *     }))
  * }
  * @endcode
  */
@@ -259,7 +259,7 @@ void tryCatch_setTerminateHandler(tryCatch_TerminateHandler handler);
  *         if (code == i) {
  *             TC_CONTINUE;
  *         }
- *     })
+ *     }))
  * }
  * @endcode
  */
@@ -277,7 +277,7 @@ void tryCatch_setTerminateHandler(tryCatch_TerminateHandler handler);
  *     TC_GOTO success;
  * }, CATCH_ALL(exceptionPtr, {
  *     TC_GOTO fail;
- * })
+ * }))
  * success:
  *     return true;
  * fail:
