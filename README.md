@@ -7,7 +7,7 @@ To use this small library, add the file [`try_catch.c`][2] to your build system.
 > [!TIP]
 > Example compilation:
 > ```shell
-> cc -Wall -Wextra -c try_catch.c -I <path/to/mh_tryCatch>/include
+> cc -Wall -Wextra -c try_catch.c -I<path/to/mh_tryCatch>/include
 > ```
 
 Then, simply include the header [`try_catch.h`][3]. 
